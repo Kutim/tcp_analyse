@@ -1,0 +1,10 @@
+elasticsearch
+kafka
+chardet
+
+numpy
+sklearn
+pandas
+hmmlearn
+pyspark
+hdfs
