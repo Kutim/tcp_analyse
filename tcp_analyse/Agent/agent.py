@@ -109,18 +109,14 @@ class MonitorFlow(pyinotify.ProcessEvent):
             file=open(event.pathname)
             file.seek(file_dict[event.pathname],0)
             firstLine=file.readline()
+            file.seek(file_dict[event.pathname], 0)
             if firstLine[0:4] in ("GET ", "POST"):
-                #file = open(event.pathname)
-                file.seek(file_dict[event.pathname], 0)
                 data = self.RequestHandler(file)
-                file_dict[event.pathname] =file.tell()
-                print("file .position  {%s}   {%s}",file.name,file.tell())
-                #file.close()
             elif firstLine[0:9]=="HTTP/1.1 " and \
                             " Connection " not in firstLine:
-                file = open(event.pathname)
                 data=self.ResponseHandler(file)
-                #file.close()
+            file_dict[event.pathname] = file.tell()
+            print("file .position  {%s}   {%s}", file.name, file.tell())
         except (IOError,OSError):
             pass
         if len(data)>0:
@@ -146,10 +142,13 @@ class MonitorFlow(pyinotify.ProcessEvent):
             d=self.FillEmpty(d)
             self.queue.put(d)
 
-    def process_IN_CLOSE_WRITE(self,event):
-        print("file close ",event.pathname)
-        del file_dict[event.pathname]
-        os.remove(event.pathname)
+    def process_IN_CLOSE_WRITE_test(self,event):
+        try:
+            print("file close ",event.pathname)
+            del file_dict[event.pathname]
+            os.remove(event.pathname)
+        except (FileNotFoundError):
+            pass
 
     def process_IN_OPEN(self, event):
         file_dict[event.pathname]=0
@@ -236,7 +235,7 @@ class MonitorFlow(pyinotify.ProcessEvent):
             line=file.readline()
             if line[0:9]=="HTTP/1.1 ":
                 if len(d)>0:
-                    data.append(d)
+                    #data.append(d)
                     d={}
                     response=False
                 d["http_type"]="Response"
@@ -253,8 +252,9 @@ class MonitorFlow(pyinotify.ProcessEvent):
                 if not response:
                     response=True
             elif not line:
-                data.append(d)
+                pass
                 break
+        data.append(d)
         return  data
 class ES(object):
     def __init__(self,es_host):
