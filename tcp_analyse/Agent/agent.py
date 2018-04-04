@@ -7,6 +7,7 @@ from kafka import KafkaProducer
 
 from urllib.parse import quote
 
+file_dict={}
 def main():
     #Set loger
     global logger
@@ -74,7 +75,7 @@ def processPcap(temDir,tcpFlowPath,tcpflow_args):
     if tcpflow_args:
         tcpflow_args=tcpflow_args.replace('"','')
         logger.info("[+]TcpFlow Command:cd %s && %s -a -e http -Ft %s"%(temDir,tcpFlowPath,tcpflow_args))
-    output=os.popen("(cd %s && %s -a -e http -Ft %s)"%(temDir,tcpFlowPath,tcpflow_args))
+    output=os.popen("(cd %s && %s -a -e http -Ft %s -S enable_report=NO)"%(temDir,tcpFlowPath,tcpflow_args))
     logger.info("[+]TcpFlow UP!")
     output.read()
     logger.info("[-]Error:TcpFlow Down!")
@@ -100,22 +101,26 @@ class MonitorFlow(pyinotify.ProcessEvent):
         self.queue=queue
         self.pevent = pevent
         self.my_init(**kargs)
-    def process_IN_CLOSE(self,event):
+    def process_IN_MODIFY(self,event):
         data=[]
         try:
+            if event.pathname not in file_dict.keys():
+                file_dict[event.pathname]=0
             file=open(event.pathname)
+            file.seek(file_dict[event.pathname],0)
             firstLine=file.readline()
-            file.close()
             if firstLine[0:4] in ("GET ", "POST"):
-                file = open(event.pathname)
+                #file = open(event.pathname)
+                file.seek(file_dict[event.pathname], 0)
                 data = self.RequestHandler(file)
-                file.close()
+                file_dict[event.pathname] =file.tell()
+                print("file .position  {%s}   {%s}",file.name,file.tell())
+                #file.close()
             elif firstLine[0:9]=="HTTP/1.1 " and \
                             " Connection " not in firstLine:
                 file = open(event.pathname)
                 data=self.ResponseHandler(file)
-                file.close()
-            os.remove(event.pathname)
+                #file.close()
         except (IOError,OSError):
             pass
         if len(data)>0:
@@ -141,9 +146,13 @@ class MonitorFlow(pyinotify.ProcessEvent):
             d=self.FillEmpty(d)
             self.queue.put(d)
 
-    def process_IN_ACCESS(self, event):
-        print("modify...."+event.pathname)
-        self.process_IN_CLOSE(event)
+    def process_IN_CLOSE_WRITE(self,event):
+        print("file close ",event.pathname)
+        del file_dict[event.pathname]
+        os.remove(event.pathname)
+
+    def process_IN_OPEN(self, event):
+        file_dict[event.pathname]=0
 
     #http请求文件处理
     def RequestHandler(self,file):
