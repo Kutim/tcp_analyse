@@ -132,7 +132,7 @@ class MonitorFlow(pyinotify.ProcessEvent):
             file_dict[event.pathname] = file.tell()
         except (IOError, OSError):
             pass
-        if len(data) > 0:
+        if data != []:
             # Get src_ip src_port dst_ip dst_port From filename
             # add to data
             filename = event.pathname.split("/")[-1]
@@ -145,14 +145,12 @@ class MonitorFlow(pyinotify.ProcessEvent):
             dst_port = str(int(dst[4]))
             src_ip = "%s.%s.%s.%s" % (str(int(src[0])), str(int(src[1])), str(int(src[2])), str(int(src[3])))
             dst_ip = "%s.%s.%s.%s" % (str(int(dst[0])), str(int(dst[1])), str(int(dst[2])), str(int(dst[3])))
-            for i in range(len(data)):
-                data[i]["src_ip"] = src_ip
-                data[i]["dst_ip"] = dst_ip
-                data[i]["src_port"] = src_port
-                data[i]["dst_port"] = dst_port
-                data[i]["flow_time"] = flow_time
-        for d in data:
-            d = self.FillEmpty(d)
+            data["src_ip"] = src_ip
+            data["dst_ip"] = dst_ip
+            data["src_port"] = src_port
+            data["dst_port"] = dst_port
+            data["flow_time"] = flow_time
+            d = self.FillEmpty(data)
             self.queue.put(d)
 
     def process_IN_CLOSE_WRITE_test(self, event):
