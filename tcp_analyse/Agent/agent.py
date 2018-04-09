@@ -166,7 +166,6 @@ class MonitorFlow(pyinotify.ProcessEvent):
 
     # http请求文件处理
     def RequestHandler(self, file):
-        data = []
         post = False
         # Get data From File Content
         for line in file.readlines():
@@ -197,34 +196,14 @@ class MonitorFlow(pyinotify.ProcessEvent):
                     pass  # data.append(d)
                 elif d["method"] == "POST":
                     post = True
+                    d["data"] = ""
             else:
                 if post:
-                    s = line.split("GET ")
-                    if len(s) > 1:
-                        d["data"] = quote(s[0])
-                        d = {}
-                        d["method"] = "GET"
-                        d["http_type"] = "Request"
-                        d["uri"] = quote(s[-1].split()[0].strip())
-                        post = False
+                    if line=="" or line=="\r\n":
+                        break
                     else:
-                        s = line.split("POST ")
-                        if len(s) > 1:
-                            d["data"] = quote(s[0])
-                            # data.append(d)
-                            d = {}
-                            d["method"] = "POST"
-                            d["http_type"] = "Request"
-                            d["uri"] = quote(s[-1].split()[0].strip())
-                        else:
-                            if "data" not in d.keys():
-                                d["data"] = quote(line[:])  # .strip()
-                            else:
-                                d["data"] += quote(line[:])  # .strip()
-                        continue
-                        post = False
-        data.append(d)
-        return data
+                        d["data"] += quote(line[:])  # .strip()
+        return d
 
     def FillEmpty(self, data):
         # 对数据没有的字段补空
@@ -241,16 +220,11 @@ class MonitorFlow(pyinotify.ProcessEvent):
 
     # 响应数据文件处理
     def ResponseHandler(self, file):
-        data = []
         d = {}
         response = False
         while True:
             line = file.readline()
             if line[0:9] == "HTTP/1.1 ":
-                if len(d) > 0:
-                    # data.append(d)
-                    d = {}
-                    response = False
                 d["http_type"] = "Response"
                 d["status"] = line.split()[1]
             elif line[0:8] == "Server: ":
@@ -261,14 +235,18 @@ class MonitorFlow(pyinotify.ProcessEvent):
                 d["content_length"] = line[16:].strip('\n')
             elif line[0:6] == "Date: ":
                 d["date"] = line[6:].strip('\n')
-            elif line == "\r\n":
-                if not response:
-                    response = True
-            elif not line:
-                pass
-                break
-        data.append(d)
-        return data
+            elif (line == "\r\n" or line=="\n") and not response:
+                response = True
+                d["data"] = ""
+                continue
+            if response:
+                if line[0:9] == "HTTP/1.1 ":
+                    break
+                if line=="" or line=="\r\n":
+                    break
+                else:
+                    d["data"] += line
+        return d
 
 
 class ES(object):
@@ -276,7 +254,6 @@ class ES(object):
         """init Elastisearch connection"""
         self.es_connect = Elasticsearch(hosts=es_host)
         logger.info("[+]Elasticsearch connection success!")
-
 
     def write_to_es(self, index_name, type_name, record):
         """create a new document """
