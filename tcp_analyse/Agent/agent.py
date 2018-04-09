@@ -153,7 +153,7 @@ class MonitorFlow(pyinotify.ProcessEvent):
             d = self.FillEmpty(data)
             self.queue.put(d)
 
-    def process_IN_CLOSE_WRITE_test(self, event):
+    def process_IN_CLOSE_WRITE(self, event):
         try:
             print("file close ", event.pathname)
             del file_dict[event.pathname]
