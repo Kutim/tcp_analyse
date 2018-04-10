@@ -1,5 +1,5 @@
 from __future__ import print_function
-from Utils import get_sc
+from Utils import get_ssc
 from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SQLContext
 from pyspark.streaming import StreamingContext
@@ -10,7 +10,7 @@ class FromKafkaToHdfsJob(object):
     def __init__(self, conf):
         self.conf = conf
         self.app_conf = conf["App"]["FromKafkaToHdfsJob"]
-        self.sc = get_sc(self.app_conf)
+        self.sc = get_ssc(self.app_conf)
         self.ssc = StreamingContext(self.sc, 20)
         self.sqlcontext = SQLContext(self.sc)
 

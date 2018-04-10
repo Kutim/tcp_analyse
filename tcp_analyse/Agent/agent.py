@@ -100,6 +100,7 @@ def processKafka(queue, kafka_host, topic):
     kafka = Kafka(kafka_host)
     while True:
         record = json.dumps(queue.get())
+        record=bytes(record, encoding="utf8")
         kafka.Send_to_kafka(record, topic)
 
 
@@ -194,13 +195,13 @@ class MonitorFlow(pyinotify.ProcessEvent):
             elif line == "\r\n" or line == "\n":
                 if d["method"] == "GET":
                     pass  # data.append(d)
-                elif d["method"] == "POST":
+                elif d["method"] == "POST" and not post:
                     post = True
                     d["data"] = ""
             else:
                 if post:
-                    if line=="" or line=="\r\n":
-                        break
+                    if line=="" :#or line=="\r\n":
+                        continue #break
                     else:
                         d["data"] += quote(line[:])  # .strip()
         return d
