@@ -273,5 +273,6 @@ class Kafka(object):
         self.producer.send(topic, record)
 
 
+
 if __name__ == "__main__":
     main()
