@@ -1,4 +1,38 @@
 # Container that runs HDFS NameNode and DataNode services
+
+nginx-tcpflow:
+ image: nginx-tcpflow
+ hostname: nginx-tcpflow
+ links:
+   - kafka:kafka
+ ports:
+   - "80:80"
+ volumes:
+   - /etc/localtime:/etc/localtime
+
+zookeeper:
+ image: zookeeper:latest
+ hostname: zookeeper
+ ports:
+   - "2181"
+ volumes:
+   - /etc/localtime:/etc/localtime
+
+kafka:
+ image: wurstmeister/kafka:latest
+ hostname: kafka
+ ports:
+   - "9092"
+   - "6667"
+ links:
+   - zookeeper:zookeeper
+ environment:
+  - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  - KAFKA_ADVERTISED_HOST_NAME=kafka
+  - KAFKA_ADVERTISED_PORT=9092
+ volumes:
+   - /etc/localtime:/etc/localtime
+
 hdfs-namenode:
  image: hdfs-namenode
  hostname: hdfs-namenode-host
@@ -10,6 +44,8 @@ hdfs-namenode:
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
+ links:
+   - kafka:kafka
 
 # Container that runs HDFS DataNode service
 hdfs-datanode:
@@ -23,6 +59,8 @@ hdfs-datanode:
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
+ volumes:
+   - /etc/localtime:/etc/localtime
 
 # Container that runs Spark Master and Worker services
 spark-master:
@@ -41,6 +79,8 @@ spark-master:
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
+ volumes:
+   - /etc/localtime:/etc/localtime
 
 # Container that runs Spark Worker service
 spark-slave:
@@ -57,3 +97,5 @@ spark-slave:
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
+ volumes:
+   - /etc/localtime:/etc/localtime

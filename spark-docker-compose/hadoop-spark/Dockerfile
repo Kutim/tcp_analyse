@@ -36,34 +36,36 @@ RUN \
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # Download Hadoop package
-ADD http://mirrors.ustc.edu.cn/apache/hadoop/common/hadoop-2.7.5/hadoop-2.7.5.tar.gz /tmp/
+RUN cd /tmp/ && wget http://mirrors.ustc.edu.cn/apache/hadoop/common/hadoop-2.7.5/hadoop-2.7.5.tar.gz 
 
 # Download Spark package
-ADD http://mirrors.ustc.edu.cn/apache/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz /tmp/
+RUN cd /tmp/ && wget http://mirrors.ustc.edu.cn/apache/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz 
 
 # Create /opt directory
 RUN mkdir -p /opt/
 
 # Unpack hadoop into /opt/ and set HADOOP_HOME
-RUN tar -xzf /tmp/hadoop-2.7.5.tar.gz -C /opt/
+RUN tar -xzf /tmp/hadoop-2.7.5.tar.gz -C /opt/  && \
+  mv /opt/hadoop-2.7.5 /opt/hadoop
 
 # Copy hadoop confs
-ADD /hadoop-conf /opt/hadoop-2.7.5/etc/hadoop/
+ADD /hadoop-conf /opt/hadoop/etc/hadoop/
 
 # Set Hadoop sepcific environment variables
-ENV HADOOP_HOME /opt/hadoop-2.7.5
+ENV HADOOP_HOME /opt/hadoop
 ENV HADOOP_CONF_DIR="${HADOOP_HOME}/etc/hadoop"
 ENV HADOOP_LIBEXEC_DIR="${HADOOP_HOME}/libexec"
 
-RUN sed -i 's/export JAVA_HOME=${JAVA_HOME}/export JAVA_HOME=\/usr\/lib\/jvm\/java-8-oracle/' /opt/hadoop-2.7.5/etc/hadoop/hadoop-env.sh
+RUN sed -i 's/export JAVA_HOME=${JAVA_HOME}/export JAVA_HOME=\/usr\/lib\/jvm\/java-8-oracle/' /opt/hadoop/etc/hadoop/hadoop-env.sh
 
 RUN mkdir -p /opt/data/apps/tmp
 RUN mkdir -p /opt/data/apps/dfs/name
 RUN mkdir -p /opt/data/apps/dfs/data
 
 # Unpack spark into /opt and set SPARK_HOME
-RUN tar -xzf /tmp/spark-2.3.0-bin-hadoop2.7.tgz -C /opt/
-ENV SPARK_HOME /opt/spark-2.3.0-bin-hadoop2.7
+RUN tar -xzf /tmp/spark-2.3.0-bin-hadoop2.7.tgz -C /opt/ && \
+  mv /opt/spark-2.3.0-bin-hadoop2.7 /opt/spark-bin-hadoop
+ENV SPARK_HOME /opt/spark-bin-hadoop
 
 ENV PATH $PATH:${HADOOP_HOME}/sbin/:${HADOOP_HOME}/bin:${SPARK_HOME}/sbin/:${SPARK_HOME}/bin
 
@@ -80,4 +82,6 @@ EXPOSE 19888
 EXPOSE 8030 8031 8032 8033 8040 8042 8088
 #Other ports
 EXPOSE 49707 2122
+
+RUN cp /usr/bin/python3 /usr/bin/python
 

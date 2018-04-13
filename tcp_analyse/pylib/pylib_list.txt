@@ -1,8 +1,9 @@
+numpy
 elasticsearch
 kafka
 chardet
+pyinotify
 
-numpy
 sklearn
 pandas
 hmmlearn
