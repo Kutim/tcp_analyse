@@ -66,7 +66,7 @@ spark-master:
  image: spark-master
  hostname: spark-master
  links:
-   - hdfs-namenode
+   - hdfs-namenode:hdfs-namenode
    - nginx-tcpflow
    - kafka:kafka
    - zookeeper:zookeeper
