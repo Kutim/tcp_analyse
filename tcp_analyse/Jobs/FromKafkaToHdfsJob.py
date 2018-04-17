@@ -22,7 +22,7 @@ class FromKafkaToHdfsJob(object):
         topic = {in_topic: in_topic_partitions}
         dstream = KafkaUtils.createStream(self.ssc, zookeeper, self.app_conf["app_name"], topic)
         dstream = dstream.map(lambda record: json.loads(record[1], encoding="utf8"))
-        # dstream.foreachRDD(lambda rdd: self.save(rdd))
+        dstream.foreachRDD(lambda rdd: self.save(rdd))
         dstream.pprint()
         self.ssc.start()
         self.ssc.awaitTermination()

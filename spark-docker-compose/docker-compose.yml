@@ -29,7 +29,7 @@ kafka:
    - zookeeper:zookeeper
  environment:
   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.137
+  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.138
   - KAFKA_ADVERTISED_PORT=9092
  volumes:
    - /etc/localtime:/etc/localtime
