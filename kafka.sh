@@ -13,4 +13,4 @@ docker run -d --name kafka --publish 9092:9092 \
 	--volume /etc/localtime:/etc/localtime \
 	wurstmeister/kafka:latest
 
-# docker exec -it kafka /opt/kafka_2.12-1.0.1/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+# docker exec -it kafka /opt/kafka_2.12-1.0.1/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic http_test --from-beginning

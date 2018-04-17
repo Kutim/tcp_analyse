@@ -4,21 +4,21 @@
       "app_name":"FromKafkaToHdfsJob",
       "in_topic":"http_test",
       "in_topic_partitions":5,
-      "kafka_producer":["127.0.0.1:6667"],
-      "namenode":"127.0.0.1",
-      "zookeeper": "127.0.0.1:2181",
+      "kafka_producer":["172.16.180.137:6667"],
+      "namenode":"172.16.180.137",
+      "zookeeper": "172.16.180.137:2181",
       "savedir":"/http_test/http_test.json"
     },
     "HmmTrainJob": {
             "app_name": "HmmTrainJob",
-            "namenode": "127.0.0.1",
+            "namenode": "172.16.180.137",
             "data_dir": "/http_test/http_test.json",
             "model_dir": "/http_test/model_test/",
             "min_train_num": 10
     },
     "HmmDetectionJob": {
             "app_name": "HmmDetectionJob",
-            "namenode": "127.0.0.1",
+            "namenode": "172.16.180.137",
             "model_dir": "/http_test/model_test.jsonmodel2017-05-04_13-01.json",
             "in_topic": "http_test",
             "in_topic_partitions": 5,

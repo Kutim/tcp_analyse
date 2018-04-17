@@ -22,12 +22,11 @@ def main():
     yarn_job_name = config["App"][options.jobname]["app_name"]
     start_cmd = "spark-submit " \
                 "--master spark://127.0.0.1:7077 " \
-                "--deploy-mode %s " \
                 "--name %s " \
                 "--driver-memory %sg " \
                 "--num-executors %s " \
                 "--executor-cores %s " \
-                "--executor-memory %sg" % (options.mode, yarn_job_name,
+                "--executor-memory %sg" % (yarn_job_name,
                                            options.dm, options.en, options.ec, options.em)
     zip_jobs = os.popen("zip -r Jobs.zip ./Jobs")
     zip_jobs.read()
@@ -52,6 +51,7 @@ def main():
     for l in local_list:
         if os.path.isfile(l):
             if l[-3:] == ".py" or l[-4:] == ".zip":
+
                 pylib_cmd += ",./" + l
             else:
                 local_file.append(l)

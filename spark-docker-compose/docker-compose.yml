@@ -3,18 +3,19 @@
 nginx-tcpflow:
  image: nginx-tcpflow
  hostname: nginx-tcpflow
- links:
-   - kafka:kafka
  ports:
    - "80:80"
+ command: ["python", "Agent/agent.py", "-k", "kafka:9092", -T "http_test", "-a", "-i eth0 port 80"]
  volumes:
    - /etc/localtime:/etc/localtime
+ links:
+   - kafka:kafka
 
 zookeeper:
  image: zookeeper:latest
  hostname: zookeeper
  ports:
-   - "2181"
+   - "2181:2181"
  volumes:
    - /etc/localtime:/etc/localtime
 
@@ -22,20 +23,20 @@ kafka:
  image: wurstmeister/kafka:latest
  hostname: kafka
  ports:
-   - "9092"
-   - "6667"
+   - "9092:9092"
+   - "6667:6667"
  links:
    - zookeeper:zookeeper
  environment:
   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  - KAFKA_ADVERTISED_HOST_NAME=kafka
+  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.137
   - KAFKA_ADVERTISED_PORT=9092
  volumes:
    - /etc/localtime:/etc/localtime
 
 hdfs-namenode:
  image: hdfs-namenode
- hostname: hdfs-namenode-host
+ hostname: hdfs-namenode
  ports:
    # HDFS port
    - "9000:9000"
@@ -44,18 +45,16 @@ hdfs-namenode:
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
- links:
-   - kafka:kafka
 
 # Container that runs HDFS DataNode service
 hdfs-datanode:
  image: hdfs-datanode
- hostname: hdfs-datanode-host
+ hostname: hdfs-datanode
  links:
    - hdfs-namenode
  environment:
    # NAMENODE_HOSTNAME is the hostname of the container running Namenode service
-   - NAMENODE_HOSTNAME=hdfs-namenode-host
+   - NAMENODE_HOSTNAME=hdfs-namenode
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
@@ -65,9 +64,12 @@ hdfs-datanode:
 # Container that runs Spark Master and Worker services
 spark-master:
  image: spark-master
- hostname: spark-master-host
+ hostname: spark-master
  links:
    - hdfs-namenode
+   - nginx-tcpflow
+   - kafka:kafka
+   - zookeeper:zookeeper
  ports:
    # Spark master WebUI port
    - "8080:8080"
@@ -75,7 +77,7 @@ spark-master:
    - "7077:7077"
  environment:
    # NAMENODE_HOSTNAME is the hostname of the container running Namenode service
-   - NAMENODE_HOSTNAME=hdfs-namenode-host
+   - NAMENODE_HOSTNAME=hdfs-namenode
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
@@ -85,15 +87,15 @@ spark-master:
 # Container that runs Spark Worker service
 spark-slave:
  image: spark-slave
- hostname: spark-slave-host
+ hostname: spark-slave
  links:
    - hdfs-namenode
    - spark-master
  environment:
    # NAMENODE_HOSTNAME is the hostname of the container running Namenode service
-   - NAMENODE_HOSTNAME=hdfs-namenode-host
+   - NAMENODE_HOSTNAME=hdfs-namenode
    # MASTER_HOSTNAME is the hostname of the container running Spark master service
-   - MASTER_HOSTNAME=spark-master-host
+   - MASTER_HOSTNAME=spark-master
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
