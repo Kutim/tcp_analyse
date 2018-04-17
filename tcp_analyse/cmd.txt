@@ -10,6 +10,14 @@ spark-submit --master spark://127.0.0.1:7077 --name FromKafkaToHdfsJob --driver-
 docker exec -it spark-docker-compose_kafka_1 /bin/bash
 
 
+docker exec -it spark-docker-compose_nginx-tcpflow_1 /bin/bash
+
+service nginx start
+
+python Agent/agent.py \
+ -k "kafka:9092" -T http_test \
+ -a "-i eth0 port 80"
+
 
 
 

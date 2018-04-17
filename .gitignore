@@ -1,3 +1,6 @@
 env/
 tcp_analyse/.idea/
 tcp_analyse/pylib/
+tcp_analyse/*.pyc
+tcp_analyse/**/*.pyc
+
