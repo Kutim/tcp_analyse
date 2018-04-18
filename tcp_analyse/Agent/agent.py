@@ -122,13 +122,13 @@ class MonitorFlow(pyinotify.ProcessEvent):
         try:
             if event.pathname not in file_dict.keys():
                 file_dict[event.pathname] = 0
-            file = open(event.pathname)
+            file = open(event.pathname, "rb")
             file.seek(file_dict[event.pathname], 0)
             firstLine = file.readline()
             file.seek(file_dict[event.pathname], 0)
-            if firstLine[0:4] in ("GET ", "POST"):
+            if firstLine[0:4] in (b"GET ", b"POST"):
                 data = self.RequestHandler(file)
-            elif firstLine[0:9] == "HTTP/1.1 " and " Connection " not in firstLine:
+            elif firstLine[0:9] == b"HTTP/1.1 " and b" Connection " not in firstLine:
                 data = self.ResponseHandler(file)
             file_dict[event.pathname] = file.tell()
         except (IOError, OSError):
@@ -170,32 +170,34 @@ class MonitorFlow(pyinotify.ProcessEvent):
         post = False
         # Get data From File Content
         for line in file.readlines():
-            if line[0:4] == "GET ":
+            if line[0:4] == b"GET ":
                 d = {}
                 d["http_type"] = "Request"
                 d["method"] = "GET"
                 d["uri"] = quote(line.split()[1])
-            elif line[0:5] == "POST ":
+            elif line[0:5] == b"POST ":
                 d = {}
                 d["http_type"] = "Request"
-                d["method"] = "POST"
+                d["method"] = b"POST"
                 d["uri"] = quote(line.split()[1])
-            elif line[0:6] == "Host: ":
+            elif line[0:6] == b"Host: ":
                 d["host"] = line[6:].strip()
-            elif line[0:12] == "User-Agent: ":
+            elif line[0:12] == b"User-Agent: ":
                 d["user_agent"] = line[11:].strip()
-            elif line[0:8] == "Cookie: ":
+            elif line[0:8] == b"Cookie: ":
                 d["cookie"] = quote(line[8:].strip())
-            elif line[0:9] == "Referer: ":
+            elif line[0:9] == b"Referer: ":
                 d["referer"] = line[9:].strip()
-            elif line[0:16] == "Content-Length: ":
+            elif line[0:16] == b"Content-Length: ":
                 d["content_length"] = int(line[16:].strip())
-            elif line[0:14] == "Content-Type: ":
+            elif line[0:14] == b"Content-Type: ":
                 d["content_type"] = line[14:].strip()
-            elif line == "\r\n" or line == "\n":
+            elif line[0:18] == b"Content-Encoding: ":
+                d["content_encoding"] = line[18:].strip()
+            elif line == b"\r\n" or line == b"\n":
                 if d["method"] == "GET":
                     pass  # data.append(d)
-                elif d["method"] == "POST" and not post:
+                elif d["method"] == b"POST" and not post:
                     post = True
                     d["data"] = ""
             else:
@@ -211,7 +213,7 @@ class MonitorFlow(pyinotify.ProcessEvent):
         fields = ['referer', 'http_type', 'host', 'cookie',
                   'flow_time', 'src_port', 'uri', 'src_ip',
                   'dst_port', 'dst_ip', 'method', 'user_agent',
-                  "content_type", "content_length", "status", "server",
+                  "content_type", "content_length", "content_encoding", "status", "server",
                   "date", "data"]
         keys = data.keys()
         empty_field = list(set(fields) ^ set(keys))
@@ -225,28 +227,30 @@ class MonitorFlow(pyinotify.ProcessEvent):
         response = False
         while True:
             line = file.readline()
-            if line[0:9] == "HTTP/1.1 ":
+            if line[0:9] == b"HTTP/1.1 ":
                 d["http_type"] = "Response"
                 d["status"] = line.split()[1]
-            elif line[0:8] == "Server: ":
-                d["server"] = line[8:].strip('\n')
-            elif line[0:14] == "Content-Type: ":
-                d["content_type"] = line[14:].strip('\n')
-            elif line[0:16] == "Content-Length: ":
-                d["content_length"] = line[16:].strip('\n')
-            elif line[0:6] == "Date: ":
-                d["date"] = line[6:].strip('\n')
-            elif (line == "\r\n" or line=="\n") and not response:
+            elif line[0:8] == b"Server: ":
+                d["server"] = line[8:].strip()
+            elif line[0:14] == b"Content-Type: ":
+                d["content_type"] = line[14:].strip()
+            elif line[0:16] == b"Content-Length: ":
+                d["content_length"] = line[16:].strip()
+            elif line[0:6] == b"Date: ":
+                d["date"] = line[6:].strip()
+            elif line[0:18] == b"Content-Encoding: ":
+                d["content_encoding"] = line[18:].strip()
+            elif (line == b"\r\n" or line == b"\n") and not response:
                 response = True
                 d["data"] = ""
                 continue
             if response:
-                if line[0:9] == "HTTP/1.1 ":
+                if line[0:9] == b"HTTP/1.1 ":
                     break
-                if line=="" or line=="\r\n":
+                if line==b"" or line==b"\r\n":
                     break
                 else:
-                    d["data"] += line
+                    d["data"] += quote(line[:])
         return d
 
 
