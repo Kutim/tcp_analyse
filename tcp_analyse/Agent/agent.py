@@ -181,19 +181,19 @@ class MonitorFlow(pyinotify.ProcessEvent):
                 d["method"] = b"POST"
                 d["uri"] = quote(line.split()[1])
             elif line[0:6] == b"Host: ":
-                d["host"] = line[6:].strip()
+                d["host"] = quote(line[6:])
             elif line[0:12] == b"User-Agent: ":
-                d["user_agent"] = line[11:].strip()
+                d["user_agent"] = quote(line[11:])
             elif line[0:8] == b"Cookie: ":
-                d["cookie"] = quote(line[8:].strip())
+                d["cookie"] = quote(line[8:])
             elif line[0:9] == b"Referer: ":
-                d["referer"] = line[9:].strip()
+                d["referer"] = quote(line[9:])
             elif line[0:16] == b"Content-Length: ":
                 d["content_length"] = int(line[16:].strip())
             elif line[0:14] == b"Content-Type: ":
-                d["content_type"] = line[14:].strip()
+                d["content_type"] = quote(line[14:])
             elif line[0:18] == b"Content-Encoding: ":
-                d["content_encoding"] = line[18:].strip()
+                d["content_encoding"] = quote(line[18:])
             elif line == b"\r\n" or line == b"\n":
                 if d["method"] == "GET":
                     pass  # data.append(d)
@@ -229,17 +229,17 @@ class MonitorFlow(pyinotify.ProcessEvent):
             line = file.readline()
             if line[0:9] == b"HTTP/1.1 ":
                 d["http_type"] = "Response"
-                d["status"] = line.split()[1]
+                d["status"] = quote(line.split()[1])
             elif line[0:8] == b"Server: ":
-                d["server"] = line[8:].strip()
+                d["server"] = quote(line[8:])
             elif line[0:14] == b"Content-Type: ":
-                d["content_type"] = line[14:].strip()
+                d["content_type"] = quote(line[14:])
             elif line[0:16] == b"Content-Length: ":
-                d["content_length"] = line[16:].strip()
+                d["content_length"] = quote(line[16:])
             elif line[0:6] == b"Date: ":
-                d["date"] = line[6:].strip()
+                d["date"] = quote(line[6:])
             elif line[0:18] == b"Content-Encoding: ":
-                d["content_encoding"] = line[18:].strip()
+                d["content_encoding"] = quote(line[18:])
             elif (line == b"\r\n" or line == b"\n") and not response:
                 response = True
                 d["data"] = ""
