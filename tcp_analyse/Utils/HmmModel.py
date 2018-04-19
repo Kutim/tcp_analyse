@@ -1,7 +1,7 @@
 #coding=utf-8
-import urllib,operator,json
-from utils import get_md5,is_chinese,decode
-from HttpUtils import get_path,get_payload
+import urllib.parse,operator,json
+from Utils.utils import get_md5,is_chinese,decode
+from Utils.HttpUtils import get_path,get_payload
 import numpy as np
 from hmmlearn.hmm import GaussianHMM
 from xml.etree import ElementTree
@@ -13,7 +13,8 @@ class Extractor(object):
     def __init__(self,data):
         self.parameter={}
         self.data=data
-        self.uri = urllib.unquote(data["uri"].encode("utf-8"))
+        url = str(data["uri"].encode("utf-8"), encoding="utf-8")
+        self.uri = urllib.parse.unquote(url)
         self.path = decode(get_path(self.uri))
         self.payload = get_payload(self.uri).strip("?")
         self.get_parameter()
@@ -121,7 +122,7 @@ class Extractor(object):
         p_name=""
         return (p_id,p_state,p_type,p_name)
     def post(self):
-        post_data=urllib.unquote(urllib.unquote(self.data["data"]))
+        post_data=urllib.parse.unquote(urllib.parse.unquote(self.data["data"]))
         content_t=self.data["content_type"]
         def ex_urlencoded(post_data):
             for p in post_data.split("&"):
@@ -183,7 +184,7 @@ class Extractor(object):
         p_name=""
         return (p_id, p_state,p_type,p_name)
     def cookie(self):
-        cookies=urllib.unquote(self.data["cookie"].encode("utf-8"))
+        cookies=urllib.parse.unquote(str(self.data["cookie"].encode("utf-8"),encoding="utf-8"))
         for p in cookies.split("; "):
             if p.strip():
                 p_list=p.split("=")
@@ -204,7 +205,7 @@ class Extractor(object):
         p_name=""
         return (p_id, p_state,p_type,p_name)
     def cookie_p_name(self):
-        cookie = urllib.unquote(self.data["cookie"].encode("utf-8"))
+        cookie = urllib.parse.unquote(str(self.data["cookie"].encode("utf-8"), encoding="utf-8"))
         p_name=""
         for p in cookie.split("; "):
             if p.strip():
@@ -275,7 +276,7 @@ class Detector(object):
 
 
 def main():
-    data={'content_length': 43, 'status': '', 'src_port': '59474', 'cookie': 'JSESSIONID%3Da449d6d0-a91d-4db4-a619-ed55239675e9%3B%20socm4ia%3D33SdLeElYV-1ES4bZEzfJ2msWUzGyf8G%257Cguoweibo01.3QGvYoBnZm98bE%252B6w%252B6e1RMN%252BY6x1H4YjY%252FQ5lfKKZU%3B%20connectId%3Ds%253A33SdLeElYV-1ES4bZEzfJ2msWUzGyf8G.8AqrleZu1lQY%252BvV2sakGkiUNdtcyB6WNYf1HfK%252FaPpA%3B%20socm4ts%3D0p4JtcIKKScCOzTN1ZJ_0kCoUVelMBsu%257Cguoweibo01.1zRT7PIXe9CrS2Pn5kBTCQsKpwPydoKf0KaieeHD1I8%3B%20tsConnectId%3Ds%253A0p4JtcIKKScCOzTN1ZJ_0kCoUVelMBsu.7Z7vNkjVarRmFz0czSHUxEoMNzXnE69iYXxJWnKSkds', 'uri': '/portal/logins/checklogin', 'http_type': 'Request', 'server': '', 'src_ip': '192.168.126.131', 'host': '10.10.10.1:8888', 'referer': 'http://10.10.10.1:8888/portal/logins/login', 'flow_time': 1493966490, 'content_type': 'text/xml', 'date': '', 'dst_ip': '10.10.10.1.180', 'dst_port': '8888', 'data': '%3Croot%3E%3Cheader%3E%3Ctype%3Efetch%3C/type%3E%3C/header%3E%3Ccontent%3E%3Cprogram%3Etest%3C/program%3E%3C/content%3E%3C/root%3E', 'method': 'POST', 'user_agent': ' Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'}
+    data={'content_length': 43, 'status': '', 'src_port': '59474', 'cookie': 'JSESSIONID%3Da449d6d0-a91d-4db4-a619-ed55239675e9%3B%20socm4ia%3D33SdLeElYV-1ES4bZEzfJ2msWUzGyf8G%257Cguoweibo01.3QGvYoBnZm98bE%252B6w%252B6e1RMN%252BY6x1H4YjY%252FQ5lfKKZU%3B%20connectId%3Ds%253A33SdLeElYV-1ES4bZEzfJ2msWUzGyf8G.8AqrleZu1lQY%252BvV2sakGkiUNdtcyB6WNYf1HfK%252FaPpA%3B%20socm4ts%3D0p4JtcIKKScCOzTN1ZJ_0kCoUVelMBsu%257Cguoweibo01.1zRT7PIXe9CrS2Pn5kBTCQsKpwPydoKf0KaieeHD1I8%3B%20tsConnectId%3Ds%253A0p4JtcIKKScCOzTN1ZJ_0kCoUVelMBsu.7Z7vNkjVarRmFz0czSHUxEoMNzXnE69iYXxJWnKSkds', 'uri': '/portal/logins/checklogin?a=23&b123=89', 'http_type': 'Request', 'server': '', 'src_ip': '192.168.126.131', 'host': '10.10.10.1:8888', 'referer': 'http://10.10.10.1:8888/portal/logins/login', 'flow_time': 1493966490, 'content_type': 'text/xml', 'date': '', 'dst_ip': '10.10.10.1.180', 'dst_port': '8888', 'data': '%3Croot%3E%3Cheader%3E%3Ctype%3Efetch%3C/type%3E%3C/header%3E%3Ccontent%3E%3Cprogram%3Etest%3C/program%3E%3C/content%3E%3C/root%3E', 'method': 'POST', 'user_agent': ' Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'}
     ps=Extractor(data).parameter
     print(ps)
     for key in ps.keys():

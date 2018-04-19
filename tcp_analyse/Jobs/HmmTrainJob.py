@@ -1,5 +1,6 @@
 from __future__ import print_function
-from Utils import get_sc,Extractor,Trainer
+from Utils.get_ssc import get_sc
+from Utils.HmmModel import Extractor, Trainer
 from pyspark.sql import SQLContext
 from hdfs.client import Client
 import pickle,time,json,logging
