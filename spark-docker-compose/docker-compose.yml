@@ -29,7 +29,7 @@ kafka:
    - zookeeper:zookeeper
  environment:
   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  - KAFKA_ADVERTISED_HOST_NAME=192.168.30.57
+  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.137
   - KAFKA_ADVERTISED_PORT=9092
  volumes:
    - /etc/localtime:/etc/localtime
@@ -38,6 +38,8 @@ hdfs-namenode:
  image: hdfs-namenode
  hostname: hdfs-namenode
  ports:
+   # yarn
+   - "8088:8088"
    # HDFS port
    - "9000:9000"
    # HDFS NameNode WebUI

@@ -4,8 +4,10 @@ def get_ssc(AppConfig):
     conf=SparkConf().setAppName(AppConfig["app_name"])
     sc = SparkContext(conf=conf)
     ssc = StreamingContext(sc, 20)
+    # ssc.addPyFile("dependencies.zip")
     return ssc
 def get_sc(AppConfig):
     conf = SparkConf().setAppName(AppConfig["app_name"])
     sc = SparkContext(conf=conf)
+    # sc.addPyFile("dependencies.zip")
     return sc

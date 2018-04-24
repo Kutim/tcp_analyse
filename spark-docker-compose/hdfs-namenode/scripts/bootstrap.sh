@@ -8,6 +8,8 @@ sshpass -p screencast ssh-copy-id root@localhost
 
 export HOSTNAME=`hostname`
 sed -i "s#localhost#$HOSTNAME#g" /opt/hadoop/etc/hadoop/core-site.xml
+sed -i "s#localhost#$HOSTNAME#g" /opt/hadoop/etc/hadoop/yarn-site.xml
+sed -i "s#localhost#$HOSTNAME#g" /opt/hadoop/etc/hadoop/hdfs-site.xml
 
 # Format the NameNode data directory
 hdfs namenode -format -force
@@ -21,6 +23,9 @@ sleep 5
 # Create a tmp directory and make it accessible to everyone
 hadoop fs -mkdir -p /tmp
 hadoop fs -chmod -R 777 /tmp
+
+# start yarn services
+start-yarn.sh
 
 # Run in daemon mode, don't exit
 while true; do
