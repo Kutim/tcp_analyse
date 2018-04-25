@@ -3,8 +3,11 @@
 # Start the SSH daemon
 service ssh restart
 
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa -y
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
 # Setup password less ssh
-sshpass -p screencast ssh-copy-id root@localhost
+sshpass -f ssh-copy-id root@localhost
 
 export HOSTNAME=`hostname`
 sed -i "s#localhost#$HOSTNAME#g" /opt/hadoop/etc/hadoop/core-site.xml

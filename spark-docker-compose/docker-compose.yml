@@ -29,7 +29,7 @@ kafka:
    - zookeeper:zookeeper
  environment:
   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.137
+  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.157
   - KAFKA_ADVERTISED_PORT=9092
  volumes:
    - /etc/localtime:/etc/localtime
@@ -47,13 +47,13 @@ hdfs-namenode:
  # Adjust according to the resources available on host machine
  cpu_shares: 3000
  mem_limit: 2g
+ volumes:
+   - /etc/localtime:/etc/localtime
 
 # Container that runs HDFS DataNode service
 hdfs-datanode:
  image: hdfs-datanode
  hostname: hdfs-datanode
- links:
-   - hdfs-namenode
  environment:
    # NAMENODE_HOSTNAME is the hostname of the container running Namenode service
    - NAMENODE_HOSTNAME=hdfs-namenode
@@ -62,6 +62,8 @@ hdfs-datanode:
  mem_limit: 2g
  volumes:
    - /etc/localtime:/etc/localtime
+ links:
+   - hdfs-namenode
 
 # Container that runs Spark Master and Worker services
 spark-master:
