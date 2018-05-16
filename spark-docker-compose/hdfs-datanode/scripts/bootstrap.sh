@@ -17,6 +17,8 @@ ssh hdfs-namenode 'cat /tmp/IP.txt >> /etc/hosts'
 # Replace "localhost" in Hadoop core-site xml with actual hostname which is passed
 # as NAMENODE_HOSTNAME env variable
 sed -i "s#localhost#$NAMENODE_HOSTNAME#g" /opt/hadoop/etc/hadoop/core-site.xml
+sed -i "s#localhost#$NAMENODE_HOSTNAME#g" /opt/hadoop/etc/hadoop/yarn-site.xml
+sed -i "s#localhost#$NAMENODE_HOSTNAME#g" /opt/hadoop/etc/hadoop/hdfs-site.xml
 
 # Start Datanode
 hadoop-daemon.sh start datanode

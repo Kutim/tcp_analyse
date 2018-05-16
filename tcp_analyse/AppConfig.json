@@ -7,7 +7,7 @@
       "kafka_producer":["kafka:6667"],
       "namenode":"hdfs-namenode",
       "zookeeper": "zookeeper:2181",
-      "savedir":"/tmp/http_test/http_test.json"
+      "savedir":"hdfs://172.16.180.137:9000/tmp/http_test/http_test.json"
     },
     "HmmTrainJob": {
             "app_name": "HmmTrainJob",

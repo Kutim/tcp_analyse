@@ -19,7 +19,17 @@ python Agent/agent.py \
  -a "-i eth0 port 80"
 
 
+bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic http_test --from-beginning
 
 
 
 
+
+
+spark-submit --master spark://127.0.0.1:7077 --name HmmTrainJob --driver-memory 1g --num-executors 1 --executor-cores 1 --executor-memory 1g --py-files ./pylib/sklearn-0.0.tar.gz,./pylib/py4j-0.10.6-py2.py3-none-any.whl,./pylib/numpy-1.14.2-cp36-cp36m-manylinux1_x86_64.whl,./pylib/scikit_learn-0.19.1-cp36-cp36m-manylinux1_x86_64.whl,./pylib/docopt-0.6.2.tar.gz,./pylib/elasticsearch-6.2.0-py2.py3-none-any.whl,./pylib/kafka-1.3.5-py2.py3-none-any.whl,./pylib/pylib_list.txt,./pylib/pandas-0.22.0-cp36-cp36m-manylinux1_x86_64.whl,./pylib/pyspark-2.3.0.tar.gz,./pylib/pyinotify-0.9.6.tar.gz,./pylib/pytz-2018.4-py2.py3-none-any.whl,./pylib/hdfs-2.1.0.tar.gz,./pylib/hmmlearn-0.2.0.tar.gz,./pylib/python_dateutil-2.7.2-py2.py3-none-any.whl,./pylib/matplotlib-2.2.2-cp36-cp36m-manylinux1_x86_64.whl,./Utils.zip,./StartJobShell.py,./Jobs.zip,./Test.py,./main.py --files AppConfig.json,cmd.txt,README.md,Test,Dockerfile --jars ./lib/logback-classic-1.2.3.jar,./lib/metrics-core-2.2.0.jar,./lib/spark-avro_2.11-4.0.0.jar,./lib/spark-csv_2.11-1.5.0.jar,./lib/scala-logging_2.12-3.7.2.jar,./lib/zkclient-0.3.jar,./lib/commons-csv-1.5.jar,./lib/kafka-clients-1.1.0.jar,./lib/kafka_2.12-1.1.0.jar,./lib/spark-streaming-kafka-0-8-assembly_2.11-2.3.0.jar,./lib/jarlist.txt ./main.py HmmTrainJob
+
+
+
+
+
+spark-submit --master spark://127.0.0.1:7077 --name HmmTrainJob --driver-memory 1g --num-executors 1 --executor-cores 1 --executor-memory 1g --archives ./pylib/sklearn-0.0.tar.gz,./pylib/py4j-0.10.6-py2.py3-none-any.whl,./pylib/numpy-1.14.2-cp36-cp36m-manylinux1_x86_64.whl,./pylib/scikit_learn-0.19.1-cp36-cp36m-manylinux1_x86_64.whl,./pylib/docopt-0.6.2.tar.gz,./pylib/elasticsearch-6.2.0-py2.py3-none-any.whl,./pylib/kafka-1.3.5-py2.py3-none-any.whl,./pylib/pylib_list.txt,./pylib/pandas-0.22.0-cp36-cp36m-manylinux1_x86_64.whl,./pylib/pyspark-2.3.0.tar.gz,./pylib/pyinotify-0.9.6.tar.gz,./pylib/pytz-2018.4-py2.py3-none-any.whl,./pylib/hdfs-2.1.0.tar.gz,./pylib/hmmlearn-0.2.0.tar.gz,./pylib/python_dateutil-2.7.2-py2.py3-none-any.whl,./pylib/matplotlib-2.2.2-cp36-cp36m-manylinux1_x86_64.whl,./Utils.zip,./StartJobShell.py,./Jobs.zip,./Test.py,./main.py --files AppConfig.json,cmd.txt,README.md,Test,Dockerfile --jars ./lib/logback-classic-1.2.3.jar,./lib/metrics-core-2.2.0.jar,./lib/spark-avro_2.11-4.0.0.jar,./lib/spark-csv_2.11-1.5.0.jar,./lib/scala-logging_2.12-3.7.2.jar,./lib/zkclient-0.3.jar,./lib/commons-csv-1.5.jar,./lib/kafka-clients-1.1.0.jar,./lib/kafka_2.12-1.1.0.jar,./lib/spark-streaming-kafka-0-8-assembly_2.11-2.3.0.jar,./lib/jarlist.txt ./main.py HmmTrainJob

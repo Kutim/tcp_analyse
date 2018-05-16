@@ -29,7 +29,7 @@ kafka:
    - zookeeper:zookeeper
  environment:
   - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.157
+  - KAFKA_ADVERTISED_HOST_NAME=172.16.180.137
   - KAFKA_ADVERTISED_PORT=9092
  volumes:
    - /etc/localtime:/etc/localtime
@@ -93,7 +93,7 @@ spark-slave:
  image: spark-slave
  hostname: spark-slave
  links:
-   - hdfs-namenode
+   - hdfs-namenode:hdfs-namenode
    - spark-master
  environment:
    # NAMENODE_HOSTNAME is the hostname of the container running Namenode service
