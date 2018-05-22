@@ -15,7 +15,7 @@ def main():
     parser.add_option("-N", "--num-executors", dest="en", help="num-executors",
                       default="1", type="string")
     parser.add_option("-C", "--executor-cores", dest="ec", help="executor-cores",
-                      default="2", type="string")
+                      default="1", type="string")
     parser.add_option("-M", "--executor-memory", dest="em", help="executor-cores",
                       default="1", type="string")
     (options, args) = parser.parse_args()
@@ -25,6 +25,7 @@ def main():
                 "--name %s " \
                 "--driver-memory %sg " \
                 "--num-executors %s " \
+                "--total-executor-cores 2 " \
                 "--executor-cores %s " \
                 "--executor-memory %sg" % (yarn_job_name,
                                            options.dm, options.en, options.ec, options.em)

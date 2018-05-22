@@ -17,25 +17,32 @@ class Extractor(object):
         self.uri = urllib.parse.unquote(url)
         self.path = decode(get_path(self.uri))
         self.payload = get_payload(self.uri).strip("?")
+        self.host = urllib.parse.unquote(self.data["host"])
+        self.method = urllib.parse.unquote(self.data["method"])
+        self.content_type =self.data["content_type"]
         self.get_parameter()
     def get_parameter(self):
         if self.payload.strip():
+            # url 的（参数，值）模式
             for (p_id,p_state,p_type,p_name) in self.url():
                 self.parameter[p_id]={}
                 self.parameter[p_id]["p_state"]=p_state
                 self.parameter[p_id]["p_type"]=p_type
                 self.parameter[p_id]["p_name"]=p_name
+            # url 的参数名模式
             (p_id,p_state,p_type,p_name)=self.uri_p_name()
             self.parameter[p_id] = {}
             self.parameter[p_id]["p_state"] = p_state
             self.parameter[p_id]["p_type"] = p_type
             self.parameter[p_id]["p_name"] = p_name
+         # url path 模式
         if self.path.strip():
             (p_id,p_state,p_type,p_name)=self.path_p()
             self.parameter[p_id] = {}
             self.parameter[p_id]["p_state"] = p_state
             self.parameter[p_id]["p_type"] = p_type
             self.parameter[p_id]["p_name"] = p_name
+        # http_type 模式
         if self.data["http_type"].strip():
             (p_id,p_state,p_type,p_name)=self.http_type()
             self.parameter[p_id] = {}
@@ -111,33 +118,33 @@ class Extractor(object):
             p_name=p_list[0]
             if len(p_list)>1:
                 p_value=reduce(operator.add,p_list[1:])
-                p_id=get_md5(self.data["host"]+self.path+decode(p_name)+self.data["method"])
+                p_id=get_md5(self.host+self.path+decode(p_name)+self.method)
                 p_state=self.get_Ostate(p_value)
                 p_type="uri"
                 yield (p_id,p_state,p_type,p_name)
     def path_p(self):
-        p_id=get_md5(self.data["host"]+self.data["method"])
+        p_id=get_md5(self.host+self.method)
         p_state=self.get_Ostate(self.path)
         p_type="uri_path"
         p_name=""
         return (p_id,p_state,p_type,p_name)
     def post(self):
         post_data=urllib.parse.unquote(urllib.parse.unquote(self.data["data"]))
-        content_t=self.data["content_type"]
+        content_t=self.content_type
         def ex_urlencoded(post_data):
             for p in post_data.split("&"):
                 p_list = p.split("=")
                 p_name = p_list[0]
                 if len(p_list) > 1:
                     p_value = reduce(operator.add, p_list[1:])
-                    p_id = get_md5(self.data["host"] + self.path + decode(p_name) + self.data["method"])
+                    p_id = get_md5(self.host + self.path + decode(p_name) + self.method)
                     p_state = self.get_Ostate(p_value)
                     p_type = "post"
                     yield (p_id, p_state, p_type, p_name)
         def ex_json(post_data):
             post_data=json.loads(post_data)
             for p_name,p_value in post_data.items():
-                p_id = get_md5(self.data["host"] + self.path + decode(p_name) + self.data["method"])
+                p_id = get_md5(self.host + self.path + decode(p_name) + self.method)
                 p_state=self.get_Ostate(str(p_value))
                 p_type="post"
                 yield (p_id, p_state, p_type, p_name)
@@ -160,7 +167,7 @@ class Extractor(object):
             for (p_name,p_value) in zip(p_names,elements):
                 p_state=self.get_Ostate(p_value)
                 p_type="post"
-                p_id = get_md5(self.data["host"] + self.path + decode(p_name) + self.data["method"])
+                p_id = get_md5(self.host + self.path + decode(p_name) + self.method)
                 yield (p_id, p_state, p_type, p_name)
         if "application/x-www-form-urlencoded" in content_t:
             return ex_urlencoded(post_data)
@@ -171,14 +178,14 @@ class Extractor(object):
         else:return None
     def http_type(self):
         http_type=self.data["http_type"]
-        p_id=get_md5(self.data["host"]+self.path+"http_type"+self.data["method"])
+        p_id=get_md5(self.host+self.path+"http_type"+self.method)
         p_state=self.get_Ostate(http_type)
         p_type="http_type"
         p_name=""
         return (p_id,p_state,p_type,p_name)
     def content_length(self):
         content_length=self.data["content_length"]
-        p_id = get_md5(self.data["host"] + self.path + "content_length"+ self.data["method"] )
+        p_id = get_md5(self.host + self.path + "content_length"+ self.method )
         p_state = self.get_Ostate(content_length)
         p_type="content_length"
         p_name=""
@@ -191,7 +198,7 @@ class Extractor(object):
                 p_name=p_list[0]
                 if len(p_list)>1:
                     p_value=reduce(operator.add,p_list[1:])
-                    p_id=get_md5(self.data["host"]+self.path+decode(p_name)+self.data["method"])
+                    p_id=get_md5(self.host+self.path+decode(p_name)+self.method)
                     p_state=self.get_Ostate(p_value)
                     p_type="cookie"
                     yield (p_id,p_state,p_type,p_name)
@@ -201,7 +208,7 @@ class Extractor(object):
             p_name+=p.split("=")[0]
         p_state=self.get_Ostate(p_name)
         p_type="uri_pname"
-        p_id = get_md5(self.data["host"] + self.path + self.data["method"]+p_type)
+        p_id = get_md5(self.host + self.path + self.method+p_type)
         p_name=""
         return (p_id, p_state,p_type,p_name)
     def cookie_p_name(self):
@@ -211,7 +218,7 @@ class Extractor(object):
             if p.strip():
                 p_name+=p.split("=")[0]
         p_type = "cookie_pname"
-        p_id = get_md5(self.data["host"] + self.path + self.data["method"]+p_type)
+        p_id = get_md5(self.host + self.path + self.method+p_type)
         p_state = self.get_Ostate(p_name)
         p_name=""
         return (p_id, p_state,p_type,p_name)
@@ -219,7 +226,7 @@ class Extractor(object):
         p_state = self.get_Ostate(p_names)
         p_type = "post_pname"
         p_name = ""
-        p_id = get_md5(self.data["host"] + self.path + self.data["method"]+p_type)
+        p_id = get_md5(self.host + self.path + self.method+p_type)
         return (p_id, p_state, p_type, p_name)
 class Trainer(object):
     def __init__(self,data):
@@ -230,8 +237,8 @@ class Trainer(object):
         self.get_profile()
         return (self.model,self.profile)
     def train(self):
-        Hstate_num=range(len(self.p_state))
-        Ostate_num=range(len(self.p_state))
+        Hstate_num=list(range(len(self.p_state)))
+        Ostate_num=list(range(len(self.p_state)))
         Ostate = []
         for (index,value) in enumerate(self.p_state):
             Ostate+=value     #观察状态序列

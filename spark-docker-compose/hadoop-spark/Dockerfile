@@ -49,7 +49,7 @@ RUN cp /usr/bin/python3 /usr/bin/python && \
 RUN mkdir -p ~/.config/pip && \
   echo "[global]\n index-url = https://mirrors.ustc.edu.cn/pypi/web/simple \n format = columns" > ~/.config/pip/pip.conf
 
-RUN echo "numpy \n elasticsearch \n kafka \n chardet \n pyinotify \n sklearn \n pandas \n hmmlearn \n pyspark \n hdfs" > req.txt && pip install -r req.txt
+RUN echo "numpy \n elasticsearch \n kafka \n chardet \n pyinotify \n scipy \n sklearn \n pandas \n hmmlearn \n pyspark \n hdfs" > req.txt && pip install -r req.txt
 
 # Create /opt directory
 RUN mkdir -p /opt/
