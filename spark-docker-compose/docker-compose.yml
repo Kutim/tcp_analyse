@@ -38,6 +38,7 @@ hdfs-namenode:
  image: hdfs-namenode
  hostname: hdfs-namenode
  ports:
+   - "8020:8020"
    # yarn
    - "8088:8088"
    # HDFS port
