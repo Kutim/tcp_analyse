@@ -76,7 +76,7 @@ class HmmTrainJob(object):
         model_df=sqlcontext.createDataFrame(models, schema=schema)
         logging.info("[+]Trained model num:"+str(model_df.count()))
         date=time.strftime("%Y-%m-%d_%H-%M")
-        path="hdfs://%s:8020%smodel%s.json"%(self.app_conf["namenode_model"],self.app_conf["model_dir"],date)
+        path="hdfs://%s:9000%smodel%s.json"%(self.app_conf["namenode"],self.app_conf["model_dir"],date)
         logging.info("[+]Write model to hdfs,path is :"+path)
         model_df.write.json(path=path)
         logging.info("[+]Job over!")

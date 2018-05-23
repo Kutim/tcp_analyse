@@ -11,7 +11,7 @@
     },
     "HmmTrainJob": {
             "app_name": "HmmTrainJob",
-            "namenode": "hdfs-namenode",
+            "namenode": "172.16.180.133",
             "data_dir": "hdfs://172.16.180.133:9000/tmp/http_test/http_test.json",
             "model_dir": "/tmp/http_test/model_test/",
             "min_train_num": 10
