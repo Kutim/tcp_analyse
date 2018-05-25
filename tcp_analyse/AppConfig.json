@@ -18,16 +18,16 @@
     },
     "HmmDetectionJob": {
             "app_name": "HmmDetectionJob",
-            "namenode": "hdfs-namenode",
-            "model_dir": "/tmp/http_test/model_test.jsonmodel2017-05-04_13-01.json",
+            "namenode": "172.16.180.133",
+            "model_dir": "hdfs://172.16.180.133:9000/tmp/http_test/model_test.jsonmodel.json",
             "in_topic": "http_test",
             "in_topic_partitions": 5,
-            "zookeeper": "ip:2181",
+            "zookeeper": "zookeeper:2181",
             "index_name": "web_detection_alarm",
             "type_name": "hmm_detection_alarm",
             "elasticsearch": {
                 "connect": {
-                    "hosts": ["ip", "ip"],
+                    "hosts": ["172.16.180.133"],
                     "maxsize": 25
                 },
                 "index": {
