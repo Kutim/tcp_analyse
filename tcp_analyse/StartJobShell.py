@@ -11,23 +11,23 @@ def main():
     parser.add_option("-m", "--mode", dest="mode", help='yarn cluster mode,"cluster" or "client"',
                       default="cluster", type="string")
     parser.add_option("-d", "--driver", dest="dm", help="driver-memory",
-                      default="1", type="string")
+                      default="512", type="string")
     parser.add_option("-N", "--num-executors", dest="en", help="num-executors",
                       default="1", type="string")
     parser.add_option("-C", "--executor-cores", dest="ec", help="executor-cores",
                       default="1", type="string")
     parser.add_option("-M", "--executor-memory", dest="em", help="executor-cores",
-                      default="1", type="string")
+                      default="512", type="string")
     (options, args) = parser.parse_args()
     yarn_job_name = config["App"][options.jobname]["app_name"]
     start_cmd = "spark-submit " \
                 "--master spark://127.0.0.1:7077 " \
                 "--name %s " \
-                "--driver-memory %sg " \
+                "--driver-memory %sm " \
                 "--num-executors %s " \
                 "--total-executor-cores 2 " \
                 "--executor-cores %s " \
-                "--executor-memory %sg" % (yarn_job_name,
+                "--executor-memory %sm" % (yarn_job_name,
                                            options.dm, options.en, options.ec, options.em)
     zip_jobs = os.popen("zip -r Jobs.zip ./Jobs")
     zip_jobs.read()

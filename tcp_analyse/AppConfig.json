@@ -19,7 +19,7 @@
     "HmmDetectionJob": {
             "app_name": "HmmDetectionJob",
             "namenode": "172.16.180.133",
-            "model_dir": "hdfs://172.16.180.133:9000/tmp/http_test/model_test.jsonmodel.json",
+            "model_dir": "hdfs://172.16.180.133:9000/tmp/http_test/model_test/model.json",
             "in_topic": "http_test",
             "in_topic_partitions": 5,
             "zookeeper": "zookeeper:2181",

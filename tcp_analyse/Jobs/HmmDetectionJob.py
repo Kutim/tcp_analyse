@@ -25,7 +25,7 @@ class HmmDetectionJob(object):
             model_keys[index]=model_d["p_id"]
         logging.info("[+]Got model success!")
         logging.info("[+]Start Streaming!")
-        ssc=StreamingContext(sc,20)
+        ssc=StreamingContext(sc,2)
         model_data = ssc._sc.broadcast(model_data)
         model_keys = ssc._sc.broadcast(model_keys)
         logging.info("[+]Broadcast model and keys success!")
@@ -35,22 +35,26 @@ class HmmDetectionJob(object):
         topic = {in_topic: in_topic_partitions}
         #获取kafka数据
         dtream = KafkaUtils.createStream(ssc, zookeeper, self.app_conf["app_name"], topic)
+        logging.info("[+]get data from kafka!")
         dtream=dtream.filter(self.filter)
         dtream.foreachRDD(
            lambda rdd: rdd.foreachPartition(
                lambda iter:self.detector(iter,model_data,model_keys)
            )
         )
+        # dtream.pprint()
         ssc.start()
         ssc.awaitTermination()
     def filter(self,data):
         #过滤出http请求数据
+        logging.info("logging..............................")
         data=json.loads(data[1])
         if data["method"] in ("GET","POST"):
             return True
         else :
             return False
     def detector(self, iter,model_data,model_keys):
+        logging.info("get into detector......................................................")
         es = ES(self.app_conf["elasticsearch"])
         index_name = self.app_conf["index_name"]
         type_name = self.app_conf["type_name"]
@@ -61,12 +65,14 @@ class HmmDetectionJob(object):
             try:
                 parameters = Extractor(record).parameter
                 for (p_id, p_data) in parameters.items():
+                    logging.info("......................................................")
                     if p_id in model_keys:
                         model_d = model_data[model_keys.index(p_id)]
-                        model = pickle.loads(model_d.model)
+                        model = pickle.loads(str.encode(model_d.model,encoding='iso-8859-15'))
                         profile = model_d.profile
+                        logging.info("request :  %s" % str(profile))
                         score = model.score(np.array(p_data["p_state"]))
-                        if score < profile:
+                        if 1==1 or score < profile:
                             alarm = ES.pop_null(record)
                             alarm["alarm_type"] = "HmmParameterAnomaly"
                             alarm["p_id"] = p_id

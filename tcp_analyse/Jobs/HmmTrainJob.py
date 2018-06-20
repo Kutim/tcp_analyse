@@ -59,7 +59,7 @@ class HmmTrainJob(object):
             model["p_id"] = p_id
             model["p_type"]=p_dict[p_id]["p_type"]
             model["p_name"] = p_dict[p_id]["p_name"]
-            model["model"] = str(pickle.dumps(m))
+            model["model"] = bytes.decode(pickle.dumps(m),encoding='iso-8859-15')
             model["profile"] = p
             models.append(model)
             logging.info("[+]Trained:%s,num is %s"%(p_id,trained_num))
