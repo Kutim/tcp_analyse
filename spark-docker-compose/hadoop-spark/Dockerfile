@@ -42,6 +42,9 @@ RUN cd /tmp/ && wget http://mirrors.ustc.edu.cn/apache/hadoop/common/hadoop-2.7.
 # Download Spark package
 RUN cd /tmp/ && wget http://mirrors.ustc.edu.cn/apache/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz 
 
+# Download scala package
+RUN cd /tmp/ && wget https://downloads.lightbend.com/scala/2.12.5/scala-2.12.5.tgz
+
 
 RUN cp /usr/bin/python3 /usr/bin/python && \
   cp /usr/bin/pip3 /usr/bin/pip
@@ -50,6 +53,7 @@ RUN mkdir -p ~/.config/pip && \
   echo "[global]\n index-url = https://mirrors.ustc.edu.cn/pypi/web/simple \n format = columns" > ~/.config/pip/pip.conf
 
 RUN echo "numpy \n elasticsearch \n kafka \n chardet \n pyinotify \n scipy \n sklearn \n pandas \n hmmlearn \n pyspark \n hdfs" > req.txt && pip install -r req.txt
+
 
 # Create /opt directory
 RUN mkdir -p /opt/
@@ -60,6 +64,13 @@ RUN tar -xzf /tmp/hadoop-2.7.6.tar.gz -C /opt/  && \
 
 # Copy hadoop confs
 ADD /hadoop-conf /opt/hadoop/etc/hadoop/
+
+# Copy scala 
+RUN tar -xzf /tmp/scala-2.12.5.tgz -C /opt/ && \
+  mv /opt/scala-2.12.5 /opt/scala
+
+# Set scala home
+ENV SCALA_HOME /opt/scala
 
 # Set Hadoop sepcific environment variables
 ENV HADOOP_HOME /opt/hadoop
@@ -77,7 +88,7 @@ RUN tar -xzf /tmp/spark-2.3.0-bin-hadoop2.7.tgz -C /opt/ && \
   mv /opt/spark-2.3.0-bin-hadoop2.7 /opt/spark-bin-hadoop
 ENV SPARK_HOME /opt/spark-bin-hadoop
 
-ENV PATH $PATH:${HADOOP_HOME}/sbin/:${HADOOP_HOME}/bin:${SPARK_HOME}/sbin/:${SPARK_HOME}/bin
+ENV PATH $PATH:${HADOOP_HOME}/sbin/:${HADOOP_HOME}/bin:${SPARK_HOME}/sbin/:${SPARK_HOME}/bin:${SCALA_HOME}/bin
 
 RUN ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
 
