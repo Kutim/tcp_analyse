@@ -22,7 +22,7 @@ class HmmTrainJob(object):
         rdd=df.toJSON()
         #过滤出请求数据
         p_rdd=rdd.filter(self.filter).cache()
-        #抽取参数观察序列
+        #抽取参数观察序列 ,将数据所有的id 放入rdd
         p_rdd=p_rdd.flatMap(self.extract).cache()
         logging.info("[+]Begin fliter data and extrate parameters......")
         p_list=p_rdd.collect()
@@ -30,7 +30,7 @@ class HmmTrainJob(object):
         logging.info("[+]Train data num is:"+str(len(p_list)))
         #按照参数ID分组
         p_dict={}
-        for p in p_list:
+        for p in p_list:    #    id :{}
             keys = list(p.keys())
             values = list(p.values())
             if keys[0] not in p_dict.keys():
@@ -38,6 +38,7 @@ class HmmTrainJob(object):
                 p_dict[keys[0]]["p_states"]=[values[0]["p_state"]]
                 p_dict[keys[0]]["p_type"]=values[0]["p_type"]
                 p_dict[keys[0]]["p_name"] = values[0]["p_name"]
+            # id:{p_states[,,,,,,,,,,,,]}
             p_dict[keys[0]]["p_states"].append(values[0]["p_state"])
         logging.info("[+]P num is:"+str(len(p_dict)))
         #检测是否满足最小训练数

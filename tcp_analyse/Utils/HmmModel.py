@@ -16,11 +16,11 @@ class Extractor(object):
         self.parameter = {}
         self.data = data
         url = str(data["uri"].encode("utf-8"), encoding="utf-8")
-        self.uri = urllib.parse.unquote(url)
+        self.uri = urllib.parse.unquote(url).strip()
         self.path = decode(get_path(self.uri))
         self.payload = get_payload(self.uri).strip("?")
-        self.host = urllib.parse.unquote(self.data["host"])
-        self.method = urllib.parse.unquote(self.data["method"])
+        self.host = urllib.parse.unquote(self.data["host"]).strip()
+        self.method = urllib.parse.unquote(self.data["method"]).strip()
         self.content_type = self.data["content_type"]
         self.get_parameter()
 
@@ -120,6 +120,17 @@ class Extractor(object):
                 state.append([self.get_num(i)])
         return state
 
+    def get_param_Ostate(self, s):
+        """
+        参数名比较固定，一般不会变化
+        :param s:  参数名字符串
+        :return:  观察的状态
+        """
+        state = []
+        for i in s:
+            state.append(i)
+        return state
+
     def get_num(self, s):
         return ord(s)
 
@@ -135,7 +146,7 @@ class Extractor(object):
                 yield (p_id, p_state, p_type, p_name)
 
     def path_p(self):
-        p_id = get_md5(self.host + self.method)
+        p_id = get_md5(self.host + self.method + self.path)
         p_state = self.get_Ostate(self.path)
         p_type = "uri_path"
         p_name = ""
@@ -267,21 +278,21 @@ class Trainer(object):
         return (self.model, self.profile)
 
     def train(self):
-        Hstate_num = list(range(len(self.p_state)))
+        Hstate_num = list(range(len(self.p_state)))   # 获取 序列的数目
         Ostate_num = list(range(len(self.p_state)))
         Ostate = []
         for (index, value) in enumerate(self.p_state):
             Ostate += value  # 观察状态序列
-            Hstate_num[index] = len(set(np.array(value).reshape(1, len(value))[0]))
-            Ostate_num[index] = len(value)
+            Hstate_num[index] = len(set(np.array(value).reshape(1, len(value))[0]))  # 获取状态数列表
+            Ostate_num[index] = len(value) #观测长度 列表
         self.Ostate = Ostate
         self.Hstate_num = Hstate_num
-        self.n = int(round(np.array(Hstate_num).mean()))  # 隐藏状态数
+        self.n = int(round(np.array(Hstate_num).mean()))  # 隐藏状态数，平均值
         model = GaussianHMM(n_components=self.n, n_iter=1000, init_params="mcs", covariance_type="full")
         model.fit(np.array(Ostate), lengths=Ostate_num)
         s = model.transmat_.sum(axis=1).tolist()
         try:
-            model.transmat_[s.index(0.0)] = np.array([1.0 / self.n] * self.n)
+            model.transmat_[s.index(0.0)] = np.array([1.0 / self.n] * self.n)  # 归一化
         except ValueError:
             pass
         self.model = model
@@ -289,14 +300,14 @@ class Trainer(object):
     def get_profile(self):
         scores = np.array(range(len(self.p_state)), dtype="float64")
         for (index, value) in enumerate(self.p_state):
-            scores[index] = self.model.score(value)
-        self.profile = float(scores.min())
+            scores[index] = self.model.score(value)   # 样本score
+        self.profile = float(scores.min())    # 样本中最小的 score
         self.scores = scores
 
     def re_train(self):
-        score_mean = self.scores.mean()
-        sigma = self.scores.std()
-        if self.profile < (score_mean - 3 * sigma):
+        score_mean = self.scores.mean()      # 得分平均值
+        sigma = self.scores.std()    # 得分标准差
+        if self.profile < (score_mean - 3 * sigma):    #  在 3sigma 范围外 重新训练
             index = self.scores.tolist().index(self.profile)
             self.p_state.pop(index)
             self.train()
